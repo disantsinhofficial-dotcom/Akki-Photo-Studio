@@ -38,6 +38,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -128,6 +129,7 @@ private fun PhotoRoomEditor(
     onSegment: (Uri, (Bitmap?, Bitmap?) -> Unit) -> Unit,
     onExport: (Bitmap, (Boolean) -> Unit) -> Unit
 ) {
+    val context = LocalContext.current
     var original by remember { mutableStateOf<Bitmap?>(null) }
     var mask by remember { mutableStateOf<Bitmap?>(null) }
     var replacement by remember { mutableStateOf<Bitmap?>(null) }
@@ -167,7 +169,6 @@ private fun PhotoRoomEditor(
                 status = "Applying new background…"
                 // Decode and compose off the UI thread.
                 // The selected background is retained for subsequent edits.
-                val context = androidx.compose.ui.platform.LocalContext.current
                 context.contentResolver.openInputStream(uri)?.use { stream ->
                     replacement = BitmapFactory.decodeStream(stream)
                 }
