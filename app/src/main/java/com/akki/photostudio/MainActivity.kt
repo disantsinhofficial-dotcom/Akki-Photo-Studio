@@ -76,8 +76,8 @@ class MainActivity : ComponentActivity() {
                     try {
                         val mask = segmenter.process(image).await()
                         val buffer = mask.buffer
-                        val width = mask.width()
-                        val height = mask.height()
+                        val width = mask.width
+                        val height = mask.height
                         buffer.rewind()
                         val alpha = IntArray(width * height)
                         for (i in alpha.indices) {
