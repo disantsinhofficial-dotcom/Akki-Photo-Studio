@@ -8,8 +8,6 @@ import android.graphics.Paint
 import android.graphics.Rect
 import android.graphics.PorterDuff
 import android.graphics.PorterDuffXfermode
-import android.graphics.RenderEffect
-import android.graphics.Shader
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -410,20 +408,12 @@ private fun renderEdit(
 }
 
 private fun blurBitmap(source: Bitmap): Bitmap {
-    val smallWidth = maxOf(1, source.width / 12)
-    val smallHeight = maxOf(1, source.height / 12)
+    // Lightweight offline blur approximation: downscale and upscale with filtering.
+    // This works on Android 8+ without API-31-only RenderEffect calls.
+    val smallWidth = maxOf(1, source.width / 14)
+    val smallHeight = maxOf(1, source.height / 14)
     val small = Bitmap.createScaledBitmap(source, smallWidth, smallHeight, true)
-    val enlarged = Bitmap.createScaledBitmap(small, source.width, source.height, true)
-    small.recycle()
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-        val output = Bitmap.createBitmap(source.width, source.height, Bitmap.Config.ARGB_8888)
-        val canvas = Canvas(output)
-        val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            setRenderEffect(RenderEffect.createBlurEffect(18f, 18f, Shader.TileMode.CLAMP))
-        }
-        canvas.drawBitmap(enlarged, 0f, 0f, paint)
-        enlarged.recycle()
-        return output
-    }
-    return enlarged
+    val blurred = Bitmap.createScaledBitmap(small, source.width, source.height, true)
+    if (small !== blurred) small.recycle()
+    return blurred
 }
